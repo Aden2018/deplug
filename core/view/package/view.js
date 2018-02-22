@@ -1,7 +1,67 @@
+import { el, setAttr } from 'redom'
 import DetailView from './detail'
 import m from 'mithril'
 
-export default class PackageView {
+export default class Hello {
+  constructor () {
+    this.mode = 'local'
+    this.selectedLocalPackage = ''
+    this.selectedRegistryPackage = ''
+    this.selectedPackage = null
+
+    this.el = el('nav',
+      el('div.mode-selector',
+        this.localButton = el('button', 'Local'),
+        this.registryButton = el('button', 'Registry')
+      )
+    )
+  }
+
+  onmount () {
+    deplug.packages.on('updated', () => {
+      this.update()
+    })
+    deplug.registry.on('updated', () => {
+      this.update()
+    })
+    deplug.registry.update()
+  }
+
+  update () {
+    if (deplug.packages.list.map((pkg) => pkg.data.name)
+      .indexOf(this.selectedLocalPackage) < 0) {
+      if (deplug.packages.list.length > 0) {
+        this.selectedLocalPackage = deplug.packages.list[0].data.name
+      } else {
+        this.selectedLocalPackage = ''
+      }
+    }
+    if (deplug.registry.packages.map((pkg) => pkg.data.name)
+      .indexOf(this.selectedRegistryPackage) < 0) {
+      if (deplug.registry.packages.length > 0) {
+        this.selectedRegistryPackage = deplug.registry.packages[0].data.name
+      } else {
+        this.selectedRegistryPackage = ''
+      }
+    }
+    this.selectedPackage = null
+    if (this.mode === 'local') {
+      this.selectedPackage = deplug.packages.list.find((pkg) =>
+        pkg.data.name === this.selectedLocalPackage) || null
+    } else {
+      this.selectedPackage = deplug.registry.packages.find((pkg) =>
+        pkg.data.name === this.selectedRegistryPackage) || null
+    }
+    if (this.selectedPackage !== null) {
+      const installedPkg = deplug.packages.get(this.selectedPackage.data.name)
+      this.selectedPackage = installedPkg || this.selectedPackage
+    }
+
+    setAttr(this.localButton, { checked: this.mode !== 'local' })
+  }
+}
+
+class PackageView {
   constructor () {
     this.mode = 'local'
     this.selectedLocalPackage = ''

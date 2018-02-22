@@ -2,13 +2,15 @@ import { shell, webFrame } from 'electron'
 import Deplug from './deplug'
 import Style from './style'
 import m from 'mithril'
+import { mount } from 'redom'
 import path from 'path'
 
 export default class Content {
-  constructor (view, less, argv = []) {
+  constructor (view, less, argv = [], redom = false) {
     this.view = view
     this.less = less
     this.argv = argv
+    this.redom = redom
   }
 
   async load () {
@@ -38,7 +40,12 @@ export default class Content {
 
     const loader = new Style()
     await loader.applyLess(path.join(__dirname, this.less))
-    m.mount(document.body, this.view)
+    if (this.redom) {
+      const Class = this.view
+      mount(document.body, new Class())
+    } else {
+      m.mount(document.body, this.view)
+    }
     await document.fonts.ready
   }
 }

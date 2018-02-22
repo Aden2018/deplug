@@ -11,5 +11,5 @@ const content = new Content(PackageView,
     `--components=${components.join(',')}`,
     '--loggerDomain=pacakge',
     '--contextMenu'
-  ])
+  ], true)
 content.load()
