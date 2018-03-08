@@ -1,4 +1,5 @@
 import { shell, webFrame } from 'electron'
+import {bind, hyper} from 'hyperhtml'
 import Deplug from './deplug'
 import Style from './style'
 import m from 'mithril'
@@ -45,7 +46,11 @@ export default class Content {
       .concat(this.argv)
     Reflect.defineProperty(window, 'deplug', { value: new Deplug(argv) })
 
-    m.mount(document.body, this.view)
+    if (this.argv.includes('--hyper')) {
+      this.view(bind(document.body))
+    } else {
+      m.mount(document.body, this.view)
+    }
     await document.fonts.ready
   }
 }
