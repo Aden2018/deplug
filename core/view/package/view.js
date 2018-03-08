@@ -1,111 +1,117 @@
+import { Component, wire } from 'hyperhtml'
 import DetailView from './detail'
-import m from 'mithril'
 
-export default class PackageView {
+export default class PackageView extends Component {
   constructor () {
-    this.mode = 'local'
-    this.selectedLocalPackage = ''
-    this.selectedRegistryPackage = ''
-  }
-
-  oncreate () {
+    super()
+    this.detailView = new DetailView()
     deplug.packages.on('updated', () => {
-      m.redraw()
+      this.setState({ localPackages: deplug.packages.list })
     })
     deplug.registry.on('updated', () => {
-      m.redraw()
+      this.setState({ registryPackages: deplug.registry.packages })
     })
     deplug.registry.update()
   }
 
-  view () {
+  get defaultState () {
+    return {
+      mode: 'local',
+      localPackages: [],
+      registryPackages: [],
+      selectedLocalPackage: '',
+      selectedRegistryPackage: '',
+    }
+  }
+
+  local () {
+    this.setState({ mode: 'local' })
+  }
+
+  registry () {
+    this.setState({ mode: 'registry' })
+  }
+
+  update () {
     if (deplug.packages.list.map((pkg) => pkg.id)
-      .indexOf(this.selectedLocalPackage) < 0) {
+      .indexOf(this.state.selectedLocalPackage) < 0) {
       if (deplug.packages.list.length > 0) {
-        this.selectedLocalPackage = deplug.packages.list[0].id
+        this.state.selectedLocalPackage = deplug.packages.list[0].id
       } else {
-        this.selectedLocalPackage = ''
+        this.state.selectedLocalPackage = ''
       }
     }
     if (deplug.registry.packages.map((pkg) => pkg.id)
-      .indexOf(this.selectedRegistryPackage) < 0) {
+      .indexOf(this.state.selectedRegistryPackage) < 0) {
       if (deplug.registry.packages.length > 0) {
-        this.selectedRegistryPackage = deplug.registry.packages[0].id
+        this.state.selectedRegistryPackage = deplug.registry.packages[0].id
       } else {
-        this.selectedRegistryPackage = ''
+        this.state.selectedRegistryPackage = ''
       }
     }
     let selectedPackage = null
-    if (this.mode === 'local') {
+    if (this.state.mode === 'local') {
       selectedPackage = deplug.packages.list.find((pkg) =>
-        pkg.id === this.selectedLocalPackage) || null
+        pkg.id === this.state.selectedLocalPackage) || null
     } else {
       selectedPackage = deplug.registry.packages.find((pkg) =>
-        pkg.id === this.selectedRegistryPackage) || null
+        pkg.id === this.state.selectedRegistryPackage) || null
     }
     if (selectedPackage !== null) {
       const installedPkg = deplug.packages.get(selectedPackage.id)
       selectedPackage = installedPkg || selectedPackage
     }
-    return [
-      m('nav', [
-        m('div', { class: 'mode-selector' }, [
-          m('button', {
-            active: this.mode === 'local',
-            onclick: () => {
-              this.mode = 'local'
-            },
-          }, ['Local']),
-          m('button', {
-            active: this.mode === 'registry',
-            onclick: () => {
-              this.mode = 'registry'
-            },
-          }, ['Registry'])
-        ]),
-        m('div', {
-          class: 'local-packages',
-          style: {
-            display: this.mode === 'local'
-              ? 'block'
-              : 'none',
-          },
-        }, [
-          m('ul', deplug.packages.list.map((pkg) =>
-            m('li', [
-              m('a', {
-                active: this.selectedLocalPackage === pkg.id,
-                onclick: () => {
-                  this.selectedLocalPackage = pkg.id
-                },
-              }, [
-                m('h4', { disabled: pkg.disabled === true }, [pkg.data.name]),
-                m('span', [pkg.data.description])
-              ])])))
-        ]),
-        m('div', {
-          class: 'registry-packages',
-          style: {
-            display: this.mode === 'registry'
-              ? 'block'
-              : 'none',
-          },
-        }, [
-          m('ul', deplug.registry.packages.map((pkg) =>
-            m('li', [
-              m('a', {
-                active: this.selectedRegistryPackage === pkg.id,
-                onclick: () => {
-                  this.selectedRegistryPackage = pkg.id
-                },
-              }, [
-                m('h4', [pkg.data.name]),
-                m('span', [pkg.data.description])
-              ])])))
-        ])
-      ]),
-      m('main', [m(DetailView, { pkg: selectedPackage })]),
-      m('div', { class: 'notification' })
-    ]
+    this.detailView.setPackage(selectedPackage)
+  }
+
+  render () {
+    this.update()
+    return this.html`
+      <nav>
+        <div class="mode-selector">
+          <button 
+            data-call=local onclick=${this}
+            active=${this.state.mode === 'local'}
+          >Local</button>
+          <button 
+            data-call=registry onclick=${this}
+            active=${this.state.mode === 'registry'}
+          >Registry</button>
+        </div>
+        <div 
+          class="local-packages"
+          active=${this.state.mode === 'local'}>
+          <ul>
+            ${this.state.localPackages.map((pkg) => wire(pkg)`<li>
+                <a
+                  active=${this.state.selectedLocalPackage === pkg.id}
+                  onclick=${() => {
+    this.setState({ selectedLocalPackage: pkg.id })
+  }}>
+                  <h4>${pkg.data.name}</h4>
+                  <span>${pkg.data.description}</span>
+                </a>
+              </li>`)}
+          </ul>
+        </div>
+        <div 
+          class="registry-packages"
+          active=${this.state.mode === 'registry'}>
+          <ul>
+            ${this.state.registryPackages.map((pkg) => wire(pkg)`<li>
+                <a
+                  active=${this.state.selectedRegistryPackage === pkg.id}
+                  onclick=${() => {
+    this.setState({ selectedRegistryPackage: pkg.id })
+  }}>
+                  <h4>${pkg.data.name}</h4>
+                  <span>${pkg.data.description}</span>
+                </a>
+              </li>`)}
+          </ul>
+        </div>
+      </nav>
+      <main>${this.detailView}</main>
+      <div class="notification"></div>`
   }
 }

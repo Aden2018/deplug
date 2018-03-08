@@ -1,6 +1,6 @@
 @nav-width: 280px;
 
-[disabled] {
+[disabled=true] {
   opacity: 0.6;
 }
 
@@ -34,7 +34,7 @@ nav {
         background: var(--theme-lighter-bg);
       }
 
-      &[active] {
+      &[active=true] {
         color: var(--theme-default-bg);
         background-color: var(--theme-default-fg);
       }
@@ -48,6 +48,10 @@ nav {
     left: 0;
     bottom: 0;
     overflow-y: scroll;
+    display: none;
+    &[active=true] {
+      display: block;
+    }
   }
 
   ul {
@@ -81,7 +85,7 @@ nav {
           background: var(--theme-lighter-bg);
         }
 
-        &[active] {
+        &[active=true] {
           color: var(--theme-default-bg);
           background-color: var(--theme-default-fg);
 

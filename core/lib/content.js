@@ -1,7 +1,7 @@
 import { shell, webFrame } from 'electron'
-import {bind, hyper} from 'hyperhtml'
 import Deplug from './deplug'
 import Style from './style'
+import { bind } from 'hyperhtml'
 import m from 'mithril'
 import path from 'path'
 
@@ -47,7 +47,8 @@ export default class Content {
     Reflect.defineProperty(window, 'deplug', { value: new Deplug(argv) })
 
     if (this.argv.includes('--hyper')) {
-      this.view(bind(document.body))
+      const View = this.view
+      bind(document.body)`${new View()}`
     } else {
       m.mount(document.body, this.view)
     }
