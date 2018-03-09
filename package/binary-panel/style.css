@@ -30,7 +30,7 @@
 .binary-view .ascii-list span {
   width: 15px;
 }
-.binary-view [data-selected] {
+.binary-view [data-range-selected=true] {
   background-color: var(--theme-keywords);
   color: var(--theme-default-bg);
 }

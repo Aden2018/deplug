@@ -1,95 +1,92 @@
-const m = require('mithril')
-class BinaryItem {
-  constructor () {
-    this.range = [-1, -1]
-  }
-  oncreate () {
+const { Component, wire } = require('hyperhtml')
+class BinaryItem extends Component {
+  constructor (frame) {
+    super();
+    [this.payload] = frame.rootLayer.payloads[0].slices
+
     deplug.action.on('core:frame:range-selected', (range) => {
-      this.range = range.length === 2
-        ? range
-        : [-1, -1]
-      m.redraw()
+      this.setState({
+        range: range.length === 2
+          ? range
+          : [-1, -1],
+      })
     })
   }
 
-  view (vnode) {
-    const showHex = true
-    const showAscii = true
-    const { payload } = vnode.attrs
-    return m('div', { class: 'binary-view' }, [
-      m('ul', {
-        class: 'hex-list',
-        style: {
-          display: showHex
-            ? 'block'
-            : 'none',
-        },
-      }, [
-        (new Array(Math.ceil(payload.length / 16))).fill()
-          .map((idx, line) => {
-            const slice = payload.slice(line * 16, (line + 1) * 16)
-            return m('li', [
-              (new Array(slice.length)).fill()
-                .map((item, byte) => {
-                  const index = (line * 16) + byte
-                  return m('span',
-                    {
-                      'data-selected':
-                  this.range[0] <= index && index < this.range[1],
-                    },
-                    [(`0${payload[index].toString(16)}`).slice(-2)])
-                })
-            ])
-          })
-      ]),
-      m('ul', {
-        class: 'ascii-list',
-        style: {
-          display: showAscii
-            ? 'block'
-            : 'none',
-        },
-      }, [
-        (new Array(Math.ceil(payload.length / 16))).fill()
-          .map((str, line) => {
-            const slice = payload.slice(line * 16, (line + 1) * 16)
-            return m('li', [
-              (new Array(slice.length)).fill()
-                .map((item, byte) => {
-                  const index = (line * 16) + byte
-                  const char = payload[index]
-                  const ascii = (char >= 0x21 && char <= 0x7e)
-                    ? String.fromCharCode(char)
-                    : '.'
-                  return m('span',
-                    {
-                      'data-selected':
-                      this.range[0] <= index && index < this.range[1],
-                    },
-                    [ascii])
-                })
-            ])
-          })
-      ])
-    ])
+  get defaultState () {
+    return { range: [-1, -1] }
+  }
+
+  hex (slice, line) {
+    return (new Array(slice.length)).fill()
+      .map((item, byte) => {
+        const index = (line * 16) + byte
+        return wire()`
+        <span
+          data-range-selected=${
+  this.state.range[0] <= index && index < this.state.range[1]}
+        >
+          ${(`0${this.payload[index].toString(16)}`).slice(-2)}
+        </span>
+      `
+      })
+  }
+
+  ascii (slice, line) {
+    return (new Array(slice.length)).fill()
+      .map((item, byte) => {
+        const index = (line * 16) + byte
+        const char = this.payload[index]
+        const ascii = (char >= 0x21 && char <= 0x7e)
+          ? String.fromCharCode(char)
+          : '.'
+        return wire()`
+        <span
+          data-range-selected=${
+  this.state.range[0] <= index && index < this.state.range[1]}
+        >
+          ${ascii}
+        </span>
+      `
+      })
+  }
+
+  render () {
+    const array = (new Array(Math.ceil(this.payload.length / 16))).fill()
+      .map((idx, line) => this.payload.slice(line * 16, (line + 1) * 16))
+    return this.html`
+      <ul class="hex-list">
+        ${array.map((slice, line) =>
+    wire()`<li>${this.hex(slice, line)}</li>`)}
+      </ul>
+      <ul class="ascii-list">
+        ${array.map((slice, line) =>
+    wire()`<li>${this.ascii(slice, line)}</li>`)}
+      </ul>
+    `
   }
 }
 
-class BinaryView {
+class BinaryView extends Component {
   constructor () {
-    this.selectedFrame = null
+    super()
     deplug.action.on('core:frame:selected', (frames) => {
-      this.selectedFrame = frames[0] || null
-      m.redraw()
+      this.setState({ frame: frames[0] || null })
     })
   }
 
-  view () {
-    if (this.selectedFrame === null) {
-      return m('div', { class: 'binary-view' }, ['No frame selected'])
-    }
-    const frame = this.selectedFrame
-    return m(BinaryItem, { payload: frame.rootLayer.payloads[0].slices[0] })
+  get defaultState () {
+    return { frame: null }
+  }
+
+  render () {
+    return this.html`
+      <div class="binary-view">
+        ${this.state.frame
+    ? new BinaryItem(this.state.frame)
+    : 'No frame selected'}  
+      </div>
+    `
   }
 }
 

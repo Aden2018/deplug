@@ -1,4 +1,5 @@
 import Style from '../../lib/style'
+import { bind } from 'hyperhtml'
 import m from 'mithril'
 
 class PanelView {
@@ -10,7 +11,8 @@ class PanelView {
     this.container = document.createElement('div')
     this.container.classList.add('panel')
     const node = this.container.attachShadow({ mode: 'open' })
-    m.mount(node, vnode.attrs.component)
+    const View = vnode.attrs.component
+    bind(node)`${new View()}`
 
     const themeStyleTag = document.createElement('style')
     themeStyleTag.id = 'theme-style'
