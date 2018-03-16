@@ -444,6 +444,10 @@ v8::Local<v8::Object> LayerWrapper::wrap(Layer *layer) {
 v8::Local<v8::Object> LayerWrapper::wrap(const Layer *layer) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   PlugkitModule *module = PlugkitModule::get(isolate);
+  auto cached = module->objectCache.get(layer);
+  if (!cached.IsEmpty()) {
+    return cached;
+  }
   auto cons = v8::Local<v8::Function>::New(isolate, module->layer.ctor);
   v8::Local<v8::Object> obj =
       cons->NewInstance(v8::Isolate::GetCurrent()->GetCurrentContext(), 0,
@@ -451,6 +455,7 @@ v8::Local<v8::Object> LayerWrapper::wrap(const Layer *layer) {
           .ToLocalChecked();
   LayerWrapper *wrapper = new LayerWrapper(layer);
   wrapper->Wrap(obj);
+  module->objectCache.set(layer, obj);
   return obj;
 }
 

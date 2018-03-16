@@ -27,6 +27,7 @@
       "src/pcap_platform.cpp",
       "src/pcap_dummy.cpp",
       "src/string_pool.cpp",
+      "src/object_cache.cpp",
       "src/sandbox.cpp",
       "src/module_loader.cpp",
       "src/wrapper/pcap_w.cpp",

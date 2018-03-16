@@ -2,6 +2,7 @@
 #define PLUGKIT_PLUGKIT_MODULE_HPP
 
 #include "string_pool.hpp"
+#include "object_cache.hpp"
 #include <v8.h>
 
 namespace plugkit {
@@ -36,6 +37,7 @@ public:
   Class worker;
   Class iterator;
 
+  ObjectCache objectCache;
   StringPool stringPool;
 };
 } // namespace plugkit

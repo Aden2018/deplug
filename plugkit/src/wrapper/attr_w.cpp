@@ -127,6 +127,10 @@ v8::Local<v8::Object> AttrWrapper::wrap(Attr *attr) {
 v8::Local<v8::Object> AttrWrapper::wrap(const Attr *attr) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   PlugkitModule *module = PlugkitModule::get(isolate);
+  auto cached = module->objectCache.get(attr);
+  if (!cached.IsEmpty()) {
+    return cached;
+  }
   auto cons = v8::Local<v8::Function>::New(isolate, module->attribute.ctor);
   v8::Local<v8::Object> obj =
       cons->NewInstance(v8::Isolate::GetCurrent()->GetCurrentContext(), 0,
@@ -134,6 +138,7 @@ v8::Local<v8::Object> AttrWrapper::wrap(const Attr *attr) {
           .ToLocalChecked();
   AttrWrapper *wrapper = new AttrWrapper(attr);
   wrapper->Wrap(obj);
+  module->objectCache.set(attr, obj);
   return obj;
 }
 

@@ -142,6 +142,10 @@ NAN_METHOD(FrameWrapper::query) {
 v8::Local<v8::Object> FrameWrapper::wrap(const FrameView *view) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   PlugkitModule *module = PlugkitModule::get(isolate);
+  auto cached = module->objectCache.get(view);
+  if (!cached.IsEmpty()) {
+    return cached;
+  }
   auto cons = v8::Local<v8::Function>::New(isolate, module->frame.ctor);
   v8::Local<v8::Object> obj =
       cons->NewInstance(v8::Isolate::GetCurrent()->GetCurrentContext(), 0,
@@ -149,6 +153,7 @@ v8::Local<v8::Object> FrameWrapper::wrap(const FrameView *view) {
           .ToLocalChecked();
   FrameWrapper *wrapper = new FrameWrapper(view);
   wrapper->Wrap(obj);
+  module->objectCache.set(view, obj);
   return obj;
 }
 

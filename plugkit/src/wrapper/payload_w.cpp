@@ -215,6 +215,10 @@ v8::Local<v8::Object> PayloadWrapper::wrap(Payload *payload) {
 v8::Local<v8::Object> PayloadWrapper::wrap(const Payload *payload) {
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   PlugkitModule *module = PlugkitModule::get(isolate);
+  auto cached = module->objectCache.get(payload);
+  if (!cached.IsEmpty()) {
+    return cached;
+  }
   auto cons = v8::Local<v8::Function>::New(isolate, module->payload.ctor);
   v8::Local<v8::Object> obj =
       cons->NewInstance(v8::Isolate::GetCurrent()->GetCurrentContext(), 0,
@@ -222,6 +226,7 @@ v8::Local<v8::Object> PayloadWrapper::wrap(const Payload *payload) {
           .ToLocalChecked();
   PayloadWrapper *wrapper = new PayloadWrapper(payload);
   wrapper->Wrap(obj);
+  module->objectCache.set(payload, obj);
   return obj;
 }
 
