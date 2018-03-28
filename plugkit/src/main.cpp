@@ -9,6 +9,7 @@
 #endif
 
 using namespace plugkit;
+extern "C" void foo(void);
 
 namespace {
 void Init(v8::Local<v8::Object> exports) {
@@ -18,6 +19,7 @@ void Init(v8::Local<v8::Object> exports) {
     dlopen(info.dli_fname, RTLD_LAZY | RTLD_NOLOAD | RTLD_GLOBAL);
   }
 #endif
+  foo();
 
   v8::Isolate *isolate = v8::Isolate::GetCurrent();
   ExtendedSlot::init(isolate);

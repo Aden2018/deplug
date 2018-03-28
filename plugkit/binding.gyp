@@ -84,7 +84,8 @@
         {
           "libraries":[
             "-L/usr/local/lib",
-            "-lpcap"
+            "-lpcap",
+            "../plugkit.rs/target/release/libplugkit.a"
           ],
           "link_settings":{
             "libraries":[
