@@ -107,6 +107,11 @@
           "include_dirs":[
             "vendor/winpcap/Include"
           ],
+          "libraries": [
+            '../plugkit.rs/target/release/plugkit.lib',
+            'Ws2_32.lib',
+            'Userenv.lib'
+          ],
           "defines":[
             "PLUGKIT_OS_WIN",
             "PLUGKIT_DLL_EXPORT",
