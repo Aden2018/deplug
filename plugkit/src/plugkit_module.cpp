@@ -23,7 +23,8 @@ NAN_METHOD(Token_get_wrap) {
     Nan::ThrowTypeError("First argument must be a string");
     return;
   }
-  Token token = Token_get(*Nan::Utf8String(info[0]));
+  Token token =
+      Token_get_ctx(v8::Isolate::GetCurrent(), *Nan::Utf8String(info[0]));
   info.GetReturnValue().Set(token);
 }
 
@@ -32,7 +33,9 @@ NAN_METHOD(Token_string_wrap) {
     Nan::ThrowTypeError("First argument must be a number");
     return;
   }
-  auto str = Nan::New(Token_string(info[0]->Uint32Value())).ToLocalChecked();
+  auto str = Nan::New(Token_string_ctx(v8::Isolate::GetCurrent(),
+                                       info[0]->Uint32Value()))
+                 .ToLocalChecked();
   info.GetReturnValue().Set(str);
 }
 } // namespace

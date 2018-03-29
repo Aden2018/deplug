@@ -45,6 +45,7 @@ public:
   std::thread thread;
   pcap_t *pcap = nullptr;
 
+  TokenPool *tokenPool = nullptr;
   Token tag;
 
   bpf_program bpf = {0, nullptr};
@@ -133,6 +134,8 @@ void PcapPlatform::setCallback(const Callback &callback) {
   d->callback = callback;
 }
 
+void PcapPlatform::setTokenPool(TokenPool *pool) { d->tokenPool = pool; }
+
 void PcapPlatform::setNetworkInterface(const std::string &id) {
   d->networkInterface = id;
 }
@@ -209,7 +212,7 @@ bool PcapPlatform::start() {
   } else {
     const auto &tagStr =
         "link_" + std::to_string(static_cast<unsigned int>(link));
-    d->tag = Token_get(tagStr.c_str());
+    d->tag = Token_get_ctx(d->tokenPool, tagStr.c_str());
   }
 
   d->thread = std::thread([this]() {

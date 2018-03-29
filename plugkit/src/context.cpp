@@ -6,8 +6,8 @@
 namespace plugkit {
 
 namespace {
-const auto nextToken = Token_get("--next");
-const auto prevToken = Token_get("--prev");
+const auto nextToken = Token_const("--next");
+const auto prevToken = Token_const("--prev");
 } // namespace
 
 void *Context_alloc(Context *ctx, size_t size) { return malloc(size); }

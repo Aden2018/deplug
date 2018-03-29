@@ -9,8 +9,8 @@
 namespace plugkit {
 
 namespace {
-const auto aliasToken = Token_get("--alias");
-const auto errorToken = Token_get("--error");
+const auto aliasToken = Token_const("--alias");
+const auto errorToken = Token_const("--error");
 } // namespace
 
 Layer::Layer(Token id) : mId(id) {

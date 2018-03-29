@@ -11,7 +11,8 @@ constexpr int isolateSlot = 2;
 enum SubSlot {
   SLOT_ELECTRON = 0,
   SLOT_PLUGKIT_SINGLETON = 1,
-  SLOT_PLUGKIT_MODULE = 2
+  SLOT_PLUGKIT_MODULE = 2,
+  SLOT_PLUGKIT_TOKEN = 3
 };
 
 inline void init(v8::Isolate *isolate) {

@@ -1,4 +1,7 @@
 #include "token.hpp"
+#include "context.hpp"
+#include "extended_slot.hpp"
+#include <cassert>
 #include <cstring>
 #include <mutex>
 #include <string>
@@ -74,6 +77,26 @@ Token Token_literal_(const char *str, size_t length) {
   return id;
 }
 
+Token Token_const(const char *str) {
+  if (str == nullptr || str[0] == '\0') {
+    return Token_null();
+  }
+
+  size_t length = strlen(str);
+  if (length <= MAX_WORD_LENGTH && length >= MIN_WORD_LENGTH) {
+    unsigned int key = hash(str, length);
+    if (key <= MAX_HASH_VALUE) {
+      const char *s = wordlist[key];
+      if (strncmp(str, s, length) == 0) {
+        return key + 1;
+      }
+    }
+  }
+
+  assert(false);
+  return 0;
+}
+
 const char *Token_string(Token token) {
   if (token == Token_null()) {
     return "";
@@ -95,4 +118,31 @@ const char *Token_string(Token token) {
   }
   return "";
 }
+
+Token Token_get_ctx(TokenPool *pool, const char *str) { return Token_get(str); }
+
+Token Token_get_ctx(Context *ctx, const char *str) {
+  return Token_get_ctx(ctx->tokenPool, str);
+}
+
+Token Token_get_ctx(v8::Isolate *isolate, const char *str) {
+  TokenPool *pool =
+      ExtendedSlot::get<TokenPool>(isolate, ExtendedSlot::SLOT_PLUGKIT_TOKEN);
+  return Token_get_ctx(pool, str);
+}
+
+const char *Token_string_ctx(TokenPool *pool, Token token) {
+  return Token_string(token);
+}
+
+const char *Token_string_ctx(Context *ctx, Token token) {
+  return Token_string_ctx(ctx->tokenPool, token);
+}
+
+const char *Token_string_ctx(v8::Isolate *isolate, Token token) {
+  TokenPool *pool =
+      ExtendedSlot::get<TokenPool>(isolate, ExtendedSlot::SLOT_PLUGKIT_TOKEN);
+  return Token_string_ctx(pool, token);
+}
+
 } // namespace plugkit

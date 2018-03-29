@@ -52,7 +52,8 @@ Dissector ScriptDissector::create(char *script) {
         if (item->IsUint32()) {
           token = item->Uint32Value();
         } else if (item->IsString()) {
-          token = Token_get(*Nan::Utf8String(item));
+          token =
+              Token_get_ctx(v8::Isolate::GetCurrent(), *Nan::Utf8String(item));
         }
         diss->layerHints[i] = token;
       }

@@ -41,6 +41,7 @@ public:
   std::unique_ptr<BlockAllocator<Payload>> payloadAllocator;
 
   StringPool stringPool;
+  TokenPool *tokenPool = nullptr;
 
   void *data = nullptr;
 };

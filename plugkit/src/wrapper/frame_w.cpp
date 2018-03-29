@@ -11,14 +11,14 @@ namespace plugkit {
 
 namespace {
 
-const auto frameToken = Token_get("$");
-const auto tsToken = Token_get("$.timestamp");
-const auto payloadToken = Token_get("$.payload");
-const auto actLenToken = Token_get("$.actualLength");
-const auto indexToken = Token_get("$.index");
-const auto errorToken = Token_get("$.error");
-const auto dateToken = Token_get("@date:unix");
-const auto errorTypeToken = Token_get("--error");
+const auto frameToken = Token_const("$");
+const auto tsToken = Token_const("$.timestamp");
+const auto payloadToken = Token_const("$.payload");
+const auto actLenToken = Token_const("$.actualLength");
+const auto indexToken = Token_const("$.index");
+const auto errorToken = Token_const("$.error");
+const auto dateToken = Token_const("@date:unix");
+const auto errorTypeToken = Token_const("--error");
 
 bool virtualAttr(Token id,
                  const FrameView *view,
@@ -128,8 +128,10 @@ NAN_GETTER(FrameWrapper::leafLayers) {
 NAN_METHOD(FrameWrapper::query) {
   FrameWrapper *wrapper = ObjectWrap::Unwrap<FrameWrapper>(info.Holder());
   if (const auto &view = wrapper->view) {
-    Token token = info[0]->IsUint32() ? info[0]->Uint32Value()
-                                      : Token_get(*Nan::Utf8String(info[0]));
+    Token token = info[0]->IsUint32()
+                      ? info[0]->Uint32Value()
+                      : Token_get_ctx(v8::Isolate::GetCurrent(),
+                                      *Nan::Utf8String(info[0]));
 
     if (virtualAttr(token, view, wrapper, info.GetReturnValue()))
       return;

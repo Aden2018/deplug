@@ -31,6 +31,7 @@ public:
   virtual ~Pcap();
   virtual void setLogger(const LoggerPtr &logger) = 0;
   virtual void setCallback(const Callback &callback) = 0;
+  virtual void setTokenPool(TokenPool *pool) = 0;
   virtual void setNetworkInterface(const std::string &id) = 0;
   virtual std::string networkInterface() const = 0;
   virtual void setPromiscuous(bool promisc) = 0;

@@ -111,7 +111,7 @@ NAN_METHOD(PayloadWrapper::attr) {
     if (id->IsUint32()) {
       token = id->Uint32Value();
     } else if (id->IsString()) {
-      token = Token_get(*Nan::Utf8String(id));
+      token = Token_get_ctx(v8::Isolate::GetCurrent(), *Nan::Utf8String(id));
     } else {
       Nan::ThrowTypeError("First argument must be a string or token-id");
       return;
@@ -133,7 +133,7 @@ NAN_METHOD(PayloadWrapper::addAttr) {
     if (id->IsUint32()) {
       token = id->Uint32Value();
     } else if (id->IsString()) {
-      token = Token_get(*Nan::Utf8String(id));
+      token = Token_get_ctx(v8::Isolate::GetCurrent(), *Nan::Utf8String(id));
     } else {
       Nan::ThrowTypeError("Second argument must be a string or token-id");
       return;
@@ -151,7 +151,8 @@ NAN_GETTER(PayloadWrapper::type) {
   PayloadWrapper *wrapper = ObjectWrap::Unwrap<PayloadWrapper>(info.Holder());
   if (auto payload = wrapper->constPayload) {
     info.GetReturnValue().Set(
-        Nan::New(Token_string(payload->type())).ToLocalChecked());
+        Nan::New(Token_string_ctx(v8::Isolate::GetCurrent(), payload->type()))
+            .ToLocalChecked());
   }
 }
 
@@ -159,7 +160,8 @@ NAN_SETTER(PayloadWrapper::setType) {
   PayloadWrapper *wrapper = ObjectWrap::Unwrap<PayloadWrapper>(info.Holder());
   if (auto payload = wrapper->payload) {
     Token token = value->IsUint32() ? value->Uint32Value()
-                                    : Token_get(*Nan::Utf8String(value));
+                                    : Token_get_ctx(v8::Isolate::GetCurrent(),
+                                                    *Nan::Utf8String(value));
     payload->setType(token);
   }
 }

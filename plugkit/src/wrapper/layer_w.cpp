@@ -11,9 +11,9 @@
 namespace plugkit {
 
 namespace {
-const auto errorTypeToken = Token_get("--error");
-const auto nextToken = Token_get("--next");
-const auto prevToken = Token_get("--prev");
+const auto errorTypeToken = Token_const("--error");
+const auto nextToken = Token_const("--next");
+const auto prevToken = Token_const("--prev");
 } // namespace
 
 void LayerWrapper::init(v8::Isolate *isolate) {
@@ -63,7 +63,8 @@ NAN_GETTER(LayerWrapper::id) {
   LayerWrapper *wrapper = ObjectWrap::Unwrap<LayerWrapper>(info.Holder());
   if (auto layer = wrapper->constLayer) {
     info.GetReturnValue().Set(
-        Nan::New(Token_string(layer->id())).ToLocalChecked());
+        Nan::New(Token_string_ctx(v8::Isolate::GetCurrent(), layer->id()))
+            .ToLocalChecked());
   }
 }
 
@@ -216,7 +217,8 @@ NAN_GETTER(LayerWrapper::tags) {
     const auto &tags = layer->tags();
     auto array = v8::Array::New(isolate, tags.size());
     for (size_t i = 0; i < tags.size(); ++i) {
-      array->Set(i, Nan::New(Token_string(tags[i])).ToLocalChecked());
+      array->Set(i,
+                 Nan::New(Token_string_ctx(isolate, tags[i])).ToLocalChecked());
     }
     info.GetReturnValue().Set(array);
   }
@@ -272,7 +274,7 @@ NAN_METHOD(LayerWrapper::attr) {
     if (id->IsUint32()) {
       token = id->Uint32Value();
     } else if (id->IsString()) {
-      token = Token_get(*Nan::Utf8String(id));
+      token = Token_get_ctx(v8::Isolate::GetCurrent(), *Nan::Utf8String(id));
     } else {
       Nan::ThrowTypeError("First argument must be a string or token-id");
       return;
@@ -293,7 +295,7 @@ NAN_METHOD(LayerWrapper::addLayer) {
     if (id->IsUint32()) {
       token = id->Uint32Value();
     } else if (id->IsString()) {
-      token = Token_get(*Nan::Utf8String(id));
+      token = Token_get_ctx(v8::Isolate::GetCurrent(), *Nan::Utf8String(id));
     } else {
       Nan::ThrowTypeError("Second argument must be a string or token-id");
       return;
@@ -315,7 +317,7 @@ NAN_METHOD(LayerWrapper::addError) {
     if (id->IsUint32()) {
       token = id->Uint32Value();
     } else if (id->IsString()) {
-      token = Token_get(*Nan::Utf8String(id));
+      token = Token_get_ctx(v8::Isolate::GetCurrent(), *Nan::Utf8String(id));
     } else {
       Nan::ThrowTypeError("Second argument must be a string or token-id");
       return;
@@ -355,7 +357,7 @@ NAN_METHOD(LayerWrapper::addAttr) {
     if (id->IsUint32()) {
       token = id->Uint32Value();
     } else if (id->IsString()) {
-      token = Token_get(*Nan::Utf8String(id));
+      token = Token_get_ctx(v8::Isolate::GetCurrent(), *Nan::Utf8String(id));
     } else {
       Nan::ThrowTypeError("Second argument must be a string or token-id");
       return;
@@ -379,7 +381,8 @@ NAN_METHOD(LayerWrapper::addAttrAlias) {
     if (aliasId->IsUint32()) {
       alias = aliasId->Uint32Value();
     } else if (aliasId->IsString()) {
-      alias = Token_get(*Nan::Utf8String(aliasId));
+      alias =
+          Token_get_ctx(v8::Isolate::GetCurrent(), *Nan::Utf8String(aliasId));
     } else {
       Nan::ThrowTypeError("Second argument must be a string or token-id");
       return;
@@ -387,7 +390,8 @@ NAN_METHOD(LayerWrapper::addAttrAlias) {
     if (targetId->IsUint32()) {
       target = targetId->Uint32Value();
     } else if (targetId->IsString()) {
-      target = Token_get(*Nan::Utf8String(targetId));
+      target =
+          Token_get_ctx(v8::Isolate::GetCurrent(), *Nan::Utf8String(targetId));
     } else {
       Nan::ThrowTypeError("Third argument must be a string or token-id");
       return;
@@ -407,7 +411,8 @@ NAN_METHOD(LayerWrapper::addTag) {
     if (info[1]->IsUint32()) {
       token = info[1]->Uint32Value();
     } else if (info[1]->IsString()) {
-      token = Token_get(*Nan::Utf8String(info[1]));
+      token =
+          Token_get_ctx(v8::Isolate::GetCurrent(), *Nan::Utf8String(info[1]));
     } else {
       Nan::ThrowTypeError("First argument must be a string or token-id");
       return;

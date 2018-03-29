@@ -38,7 +38,7 @@ NAN_METHOD(AttrWrapper::create) {
   if (id->IsUint32()) {
     token = id->Uint32Value();
   } else if (id->IsString()) {
-    token = Token_get(*Nan::Utf8String(id));
+    token = Token_get_ctx(v8::Isolate::GetCurrent(), *Nan::Utf8String(id));
   } else {
     Nan::ThrowTypeError("First argument must be a string or token-id");
     return;
@@ -52,7 +52,8 @@ NAN_GETTER(AttrWrapper::id) {
   AttrWrapper *wrapper = ObjectWrap::Unwrap<AttrWrapper>(info.Holder());
   if (auto attr = wrapper->constProp) {
     info.GetReturnValue().Set(
-        Nan::New(Token_string(attr->id())).ToLocalChecked());
+        Nan::New(Token_string_ctx(v8::Isolate::GetCurrent(), attr->id()))
+            .ToLocalChecked());
   }
 }
 
@@ -98,7 +99,8 @@ NAN_GETTER(AttrWrapper::type) {
   AttrWrapper *wrapper = ObjectWrap::Unwrap<AttrWrapper>(info.Holder());
   if (auto attr = wrapper->constProp) {
     info.GetReturnValue().Set(
-        Nan::New(Token_string(attr->type())).ToLocalChecked());
+        Nan::New(Token_string_ctx(v8::Isolate::GetCurrent(), attr->type()))
+            .ToLocalChecked());
   }
 }
 
@@ -106,7 +108,8 @@ NAN_SETTER(AttrWrapper::setType) {
   AttrWrapper *wrapper = ObjectWrap::Unwrap<AttrWrapper>(info.Holder());
   if (auto attr = wrapper->attr) {
     Token token = value->IsUint32() ? value->Uint32Value()
-                                    : Token_get(*Nan::Utf8String(value));
+                                    : Token_get_ctx(v8::Isolate::GetCurrent(),
+                                                    *Nan::Utf8String(value));
     attr->setType(token);
   }
 }

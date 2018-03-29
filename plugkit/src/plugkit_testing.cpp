@@ -36,7 +36,8 @@ void externalize(v8::FunctionCallbackInfo<v8::Value> const &info) {
   }
 }
 void createAttrInstance(v8::FunctionCallbackInfo<v8::Value> const &info) {
-  Token id = Token_get(*Nan::Utf8String(info[0]));
+  Token id =
+      Token_get_ctx(v8::Isolate::GetCurrent(), *Nan::Utf8String(info[0]));
   auto attr = new Attr(id);
   Nan::Persistent<v8::Object> persistent(AttrWrapper::wrap(attr));
   persistent.SetWeak(attr,
@@ -69,7 +70,8 @@ void createPayloadInstance(v8::FunctionCallbackInfo<v8::Value> const &info) {
   info.GetReturnValue().Set(persistent);
 }
 void createLayerInstance(v8::FunctionCallbackInfo<v8::Value> const &info) {
-  Token id = Token_get(*Nan::Utf8String(info[0]));
+  Token id =
+      Token_get_ctx(v8::Isolate::GetCurrent(), *Nan::Utf8String(info[0]));
   auto frame = new Frame();
   new FrameView(frame);
   auto parent = new Layer(id);

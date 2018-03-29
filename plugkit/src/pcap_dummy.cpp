@@ -22,6 +22,8 @@ public:
   std::unordered_map<int, Token> linkLayers;
   int link;
 
+  TokenPool *tokenPool = nullptr;
+
   std::unique_ptr<BlockAllocator<Frame>> frameAllocator;
   std::unique_ptr<BlockAllocator<Layer>> layerAllocator;
   std::unique_ptr<BlockAllocator<Payload>> payloadAllocator;
@@ -48,6 +50,8 @@ void PcapDummy::setLogger(const LoggerPtr &logger) { d->logger = logger; }
 void PcapDummy::setCallback(const Callback &callback) {
   d->callback = callback;
 }
+
+void PcapDummy::setTokenPool(TokenPool *pool) { d->tokenPool = pool; }
 
 void PcapDummy::setNetworkInterface(const std::string &id) {
   d->networkInterface = id;
@@ -76,7 +80,7 @@ bool PcapDummy::start() {
   } else {
     const auto &tagStr =
         "link_" + std::to_string(static_cast<unsigned int>(d->link));
-    tag = Token_get(tagStr.c_str());
+    tag = Token_get_ctx(d->tokenPool, tagStr.c_str());
   }
 
   d->thread = std::thread([this, tag]() {

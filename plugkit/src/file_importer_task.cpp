@@ -57,7 +57,7 @@ bool apiCallback(Context *ctx, size_t length, double progress) {
       char linkName[32] = "link_";
       snprintf(linkName + 5, sizeof(linkName) - 5, "%u",
                static_cast<unsigned int>(raw.link));
-      tag = Token_get(linkName);
+      tag = Token_get_ctx(ctx, linkName);
     }
     frames.push_back(createFrame(ctx, tag, raw));
   }

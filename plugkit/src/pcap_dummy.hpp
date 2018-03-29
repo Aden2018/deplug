@@ -14,6 +14,7 @@ public:
 
   void setLogger(const LoggerPtr &logger) override;
   void setCallback(const Callback &callback) override;
+  void setTokenPool(TokenPool *pool) override;
 
   void setNetworkInterface(const std::string &id) override;
   std::string networkInterface() const override;

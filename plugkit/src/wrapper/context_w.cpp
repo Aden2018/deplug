@@ -66,7 +66,7 @@ NAN_METHOD(ContextWrapper::addLayerLinkage) {
     if (tok->IsUint32()) {
       token = tok->Uint32Value();
     } else if (tok->IsString()) {
-      token = Token_get(*Nan::Utf8String(tok));
+      token = Token_get_ctx(v8::Isolate::GetCurrent(), *Nan::Utf8String(tok));
     } else {
       Nan::ThrowTypeError("First argument must be a string or token-id");
       return;
