@@ -98,5 +98,5 @@ impl Worker for ETHWorker {
 }
 
 plugkit_module!({});
-plugkit_api_layer_hints!(token!("[eth]"));
+plugkit_api_layer_hints!("[eth]");
 plugkit_api_worker!(ETHWorker, ETHWorker {});

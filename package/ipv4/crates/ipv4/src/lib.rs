@@ -161,5 +161,5 @@ impl Worker for IPv4Worker {
 }
 
 plugkit_module!({});
-plugkit_api_layer_hints!(token!("[ipv4]"));
+plugkit_api_layer_hints!("[ipv4]");
 plugkit_api_worker!(IPv4Worker, IPv4Worker {});

@@ -75,5 +75,5 @@ impl Worker for UDPWorker {
 }
 
 plugkit_module!({});
-plugkit_api_layer_hints!(token!("[udp]"));
+plugkit_api_layer_hints!("[udp]");
 plugkit_api_worker!(UDPWorker, UDPWorker {});

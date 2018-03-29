@@ -96,13 +96,19 @@ macro_rules! plugkit_api_file_export {
 macro_rules! plugkit_api_layer_hints {
     ( $( $x:expr ), * ) => {
         #[no_mangle]
-        pub extern "C" fn plugkit_v1_layer_hints(index: u32) -> u32 {
+        pub extern "C" fn plugkit_v1_layer_hints(index: libc::size_t, len: *mut libc::size_t) -> *const libc::c_char {
+            use std::ptr;
             let mut temp_vec = Vec::new();
             $(
                 temp_vec.push($x);
             )*
-            temp_vec.push(0);
-            temp_vec[index as usize]
+            if index < temp_vec.len() {
+                let s = temp_vec[index];
+                unsafe {*len = s.len();}
+                s.as_ptr() as *const i8
+            } else {
+                ptr::null()
+            }
         }
     };
 }

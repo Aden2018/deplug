@@ -186,9 +186,14 @@ NAN_METHOD(SessionFactoryWrapper::registerDissector) {
               loader.load<DestroyWorkerFunc *>("plugkit_v1_destroy_worker")) {
         diss.destroyWorker = func;
       }
-      if (auto func = loader.load<Token (*)(int)>("plugkit_v1_layer_hints")) {
+      if (auto func = loader.load<const char *(*)(size_t, size_t *)>(
+              "plugkit_v1_layer_hints")) {
+        v8::Isolate *isolate = v8::Isolate::GetCurrent();
         for (size_t i = 0; i < sizeof(diss.layerHints) / sizeof(Token); ++i) {
-          if (!(diss.layerHints[i] = func(i)))
+          size_t len = 0;
+          const char *data = func(i, &len);
+          if (!(diss.layerHints[i] =
+                    Token_get_ctx(isolate, std::string(data, len).c_str())))
             break;
         }
       }

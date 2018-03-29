@@ -155,5 +155,5 @@ impl Worker for IPv6Worker {
 }
 
 plugkit_module!({});
-plugkit_api_layer_hints!(token!("[ipv6]"));
+plugkit_api_layer_hints!("[ipv6]");
 plugkit_api_worker!(IPv6Worker, IPv6Worker {});

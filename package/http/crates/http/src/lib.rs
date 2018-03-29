@@ -306,5 +306,5 @@ impl Worker for HTTPWorker {
 }
 
 plugkit_module!({});
-plugkit_api_layer_hints!(token!("tcp-stream"));
+plugkit_api_layer_hints!("tcp-stream");
 plugkit_api_worker!(HTTPWorker, HTTPWorker::new());

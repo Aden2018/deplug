@@ -231,5 +231,5 @@ impl Worker for TCPWorker {
 }
 
 plugkit_module!({});
-plugkit_api_layer_hints!(token!("[tcp]"));
+plugkit_api_layer_hints!("[tcp]");
 plugkit_api_worker!(TCPWorker, TCPWorker {});
