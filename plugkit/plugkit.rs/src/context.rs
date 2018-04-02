@@ -3,6 +3,7 @@
 //! Type Context holds data for thread-local features such as allocator and logger.
 
 use super::layer::{Confidence, Layer};
+use super::prop::{Prop, Registry};
 use super::symbol;
 use super::token::Token;
 use std::io::{Error, ErrorKind};
@@ -12,6 +13,7 @@ extern crate serde_json;
 use self::serde_json::Value;
 use std::mem;
 use std::borrow::BorrowMut;
+use std::sync::{Arc, Mutex};
 
 /// A Context object.
 #[repr(C)]
@@ -62,20 +64,42 @@ impl Context {
     }
 }
 
+
+pub struct SharedContextWrapper {
+    shared: Arc<Mutex<SharedContext>>,
+}
+
+impl SharedContextWrapper {
+    fn new() -> SharedContextWrapper {
+        let shared = Arc::new(Mutex::new(SharedContext::new()));
+        SharedContextWrapper{
+            shared
+        }
+    }
+}
+
 pub struct SharedContext {
-    
+    attrs: Registry,
+}
+
+impl SharedContext {
+    fn new() -> SharedContext {
+        SharedContext{
+            attrs: Registry::new()
+        }
+    }
 }
 
 #[no_mangle]
-pub extern "C" fn plugkit_in_create_shared_ctx() -> *mut SharedContext {
-    let mut heap = Box::new(SharedContext{});
-    let ptr = heap.borrow_mut() as *mut SharedContext;
+pub extern "C" fn plugkit_in_create_shared_ctx() -> *mut SharedContextWrapper {
+    let mut heap = Box::new(SharedContextWrapper::new());
+    let ptr = heap.borrow_mut() as *mut SharedContextWrapper;
     mem::forget(heap);
     ptr
 }
 
 #[no_mangle]
-pub extern "C" fn plugkit_in_destroy_shared_ctx(ctx: *mut SharedContext) {
+pub extern "C" fn plugkit_in_destroy_shared_ctx(ctx: *mut SharedContextWrapper) {
     unsafe {
         Box::from_raw(ctx);
     }
