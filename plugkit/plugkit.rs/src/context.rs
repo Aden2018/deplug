@@ -92,10 +92,7 @@ impl SharedContext {
 
 #[no_mangle]
 pub extern "C" fn plugkit_in_create_shared_ctx() -> *mut SharedContextWrapper {
-    let mut heap = Box::new(SharedContextWrapper::new());
-    let ptr = heap.borrow_mut() as *mut SharedContextWrapper;
-    mem::forget(heap);
-    ptr
+    Box::into_raw(Box::new(SharedContextWrapper::new()))
 }
 
 #[no_mangle]

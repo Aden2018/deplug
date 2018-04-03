@@ -1,4 +1,5 @@
 #include "session_context.hpp"
+#include "allocator.hpp"
 #include "config_map.hpp"
 #include "stream_logger.hpp"
 
@@ -15,6 +16,7 @@ public:
 
 public:
   SharedContextWrapper *context;
+  RootAllocator allocator;
   ConfigMap config;
   LoggerPtr logger = std::make_shared<StreamLogger>();
 };
@@ -28,6 +30,8 @@ SessionContext::SessionContext() : d(new Private()) {}
 SessionContext::~SessionContext() {}
 
 SharedContextWrapper *SessionContext::context() const { return d->context; }
+
+RootAllocator *SessionContext::allocator() const { return &d->allocator; }
 
 const LoggerPtr &SessionContext::logger() const { return d->logger; }
 
